@@ -5,6 +5,11 @@ sudo ip link set can0 down
 sudo ip link set can0 type can bitrate 1000000
 sudo ip link set can0 up
 
+# enable slcan0
+ifconfig slcan0 down
+slcan_attach -f -o -s8 /dev/<CANUSB tty>
+slcand /dev/<CANUSB tty> slcan0
+ifconfig slcan0 up
 # activate venv
 source /root/Datalogger_Scripts/.venv/bin/activate
 
