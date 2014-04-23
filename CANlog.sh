@@ -1,12 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 # enable can0
-sudo ip link set can0 down
-sudo ip link set can0 type can bitrate 1000000
-sudo ip link set can0 up
+# sudo ip link set can0 down
+# sudo ip link set can0 type can bitrate 1000000
+# sudo ip link set can0 up
 
 # enable slcan0
-ifconfig slcan0 down
 slcand -o -c -f -s8 /dev/ttyUSB0 slcan0
 ifconfig slcan0 up
 
