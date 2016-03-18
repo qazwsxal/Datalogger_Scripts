@@ -19,8 +19,8 @@ import motors
 #mysql config
 username="root"
 database="test"
-#host="192.168.7.2"
-host="127.0.0.1"
+host="192.168.7.2"
+#host="127.0.0.1"
 
 password="dusc2015"
 
@@ -43,10 +43,10 @@ end_time = '2016-10-17 04:18:48'
 connect = sql.connect(user=username,password=password,database=database,host=host)
 cursor = connect.cursor()
 # Get latest entry in charge table
-get_newer_charges= "SELECT msg_no, msg_time, msg_id, msg_data FROM can where msg_id <=1550 AND msg_id >= 1536 ORDER BY msg_no ASC;"
+get_newer_charges= "SELECT msg_no, msg_time, msg_id, msg_data FROM can where msg_id <=1550 AND msg_id >= 1536 AND msg_no > 3591818 ORDER BY msg_no ASC;"
 print(get_newer_charges)
 cursor.execute(get_newer_charges)
-with open('test.csv', 'w', newline='') as fp:
+with open('20160316.csv', 'w', newline='') as fp:
     a = csv.writer(fp, delimiter=',')
     headers= [["msg_ID",
                "Time",
