@@ -3,6 +3,8 @@ DUEM Datalogger Scripts
 
 **A collection of scripts for use on DUSC 2015's Beaglebone Black Datalogger**
 
+TODO: Migrate to SQLchemy-based interface, abstraction introduced will make data checking easier. (less hand-coded SQL too, always a good thing!)
+
 ##Setup
 
 Run setup.sh after making sure it's executeable
