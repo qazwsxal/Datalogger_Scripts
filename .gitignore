@@ -1,3 +1,7 @@
 /.venv
 *.swp
 *.csv
+bower.json
+release/
+package.json
+src
