@@ -3,5 +3,11 @@
 *.csv
 bower.json
 release/
+/tags
 package.json
 src
+/__pycache__/*
+/__pycache__
+__pycache__
+__pycache__/
+__pycache__/motors.cpython-35.pyc

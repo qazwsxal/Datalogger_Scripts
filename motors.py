@@ -2,108 +2,134 @@
 """
 Created on Fri Mar 18 13:31:48 2016
 
-@author: adam
+@author:  Adam Leach (adam.leach@durham.ac.uk, qazwsxalan@gmail.com)
 """
 import struct
 
-class Tritium:    
-    
-    def __init__(self,MCBaseAdress):
-        self.MCBaseAdress = MCBaseAdress
-        self.types   = {MCBaseAdress     : "ID",    #Identification information
-                        MCBaseAdress +  1: "Stat",  #Status Information
-                        MCBaseAdress +  2: "Bus",   #Bus Measurement   
-                        MCBaseAdress +  3: "Vel",   #Velocity Measurement
-                        MCBaseAdress +  4: "PhC",   #Phase Current Measurement
-                        MCBaseAdress +  5: "MVV",   #Motor Voltage Vector Meas.
-                        MCBaseAdress +  6: "MVC",   #Motor Current Vector Meas.                       
-                        MCBaseAdress +  7: "MBE",   #Motor BackEMF Vector Meas.                    
-                        MCBaseAdress +  8: "VR1",   #15 & 1.65 Volt. Rail Meas.                    
-                        MCBaseAdress +  9: "VR2",   #2.5 & 1.2 Volt. Rail Meas.                    
-                        MCBaseAdress + 10: "FSM",   #Fan Speed Measurement
-                        MCBaseAdress + 11: "SKT",   #Sink & Motor Temp. Meas.
-                        MCBaseAdress + 12: "ICT",   #Air In & CPU Temp. Meas.
-                        MCBaseAdress + 13: "OCT",   #Air out & Cap Temp. Meas.
-                        MCBaseAdress + 14: "ODO"    #Odo. & Bus AmpHours Meas.
-                        }
-        self.formats = {"ID": "u_int32 + char[4]",  #Identification information
-                        "Stat": "3*u_int16"         #Status Information}
-                        }                           #Else: 2 floats 
-        
-        
-        self.serialNumber = 12345 #Not sure
-        self.tritID = "TRIa"
-        self.activeMotor = 0
-        #Flags inidicating errors
-        self.errors = {"15VUVL" :0, #A 15V rail under voltage lock out occurred
-                       "Conf"   :0, #Config Read Error
-                       "Watch"  :0, #Watchdog caused last reset
-                       "Halls"  :0, #Bad motor position hall sequence
-                       "DCBusOV":0, #DC Bus over voltage
-                       "SoftOC" :0, #Software over current
-                       "HardOC" :0  #Hardware over current
-                       }
-        #Flags indicate limiting control loop                
-        self.limits = {"HeatS"  :0, #Heatink Temperature
-                       "BusVL"  :0, #Bus Voltage Lower Limit
-                       "BusVU"  :0, #Bus Voltage Upper Limit
-                       "BusC"   :0, #Bus Current
-                       "Velo"   :0, #Velocity
-                       "MotorC" :0, #Motor Current
-                       "PWM"    :0  #Bridge PWM
-                       }                
-        self.busCurrent       = 0
-        self.busVoltage       = 0
-        self.vehicleVelocity  = 0
-        self.motorVelocity    = 0
-        self.phaseACurrent    = 0
-        self.phaseBCurrent    = 0
-        self.vectVoltReal     = 0
-        self.vectVoltImag     = 0
-        self.vectCurrReal     = 0
-        self.vectCurrImag     = 0
-        self.backEMFReal      = 0   #0 by definition
-        self.backEMFImag      = 0
-        self.fifteenVsupply   = 0
-        self.onesixfiveVsupply= 0
-        self.twofiveVsupply   = 0
-        self.onetwoVsupply    = 0
-        self.fanSpeed         = 0
-        self.fanDrive         = 0
-        self.heatSinkTemp     = 0
-        self.motorTemp        = 0
-        self.airInletTemp     = 0
-        self.processorTemp    = 0
-        self.airOutletTemp    = 0
-        self.capacitorTemp    = 0
-        self.DCBusAmpHours    = 0
-        self.Odometer         = 0
-    def parseoldSQL(self,row):
-        self.ID = row[0]
-        self.time = row[1]
-        self.msgType = self.types[row[2]]
+
+class Tritium:
+    """ Tritium Motor Controller Class
+
+    Keyword Arguments:
+    mc_base_address -- Integer, Motor Controller's base address,
+                     default 1536 (0x600)
+    """
+    def __init__(self, mc_base_address=1536):
+        self.types = {mc_base_address:      "ID",    # Identification Info
+                      mc_base_address + 1:  "Stat",  # Status Information
+                      mc_base_address + 2:  "Bus",   # Bus Measrement
+                      mc_base_address + 3:  "Vel",   # Velocity Measrement
+                      mc_base_address + 4:  "PhC",   # Phase Current Measrement
+                      mc_base_address + 5:  "MVV",   # Motor Voltage Vector
+                      mc_base_address + 6:  "MVC",   # Motor Current Vector
+                      mc_base_address + 7:  "MBE",   # Motor BackEMF Vector
+                      mc_base_address + 8:  "VR1",   # 15 & 1.65 Volt. Rail
+                      mc_base_address + 9:  "VR2",   # 2.5 & 1.2 Volt. Rail
+                      mc_base_address + 10: "FSM",   # Fan Speed Measrement
+                      mc_base_address + 11: "SKT",   # Sink & Motor Temp. Meas
+                      mc_base_address + 12: "ICT",   # Air In & CPU Temp. Meas
+                      mc_base_address + 13: "OCT",   # Air out & Cap Temp. Meas
+                      mc_base_address + 14: "ODO"}   # Odo. & Bus AmpHours
+
+        self.formats = {"ID": "u_int32 + char[4]",  # Identification info.
+                        "Stat": "3*u_int16"}        # Status Information
+        # Else: 2 floats
+
+        self.serial_number = 12345    # Not sure
+        self.active_motor = 0
+        # Flags inidicating errors
+        self.errors = {"15VUVL":  0,  # A 15V rail under volt lock out occurred
+                       "Conf":    0,  # Config Read Error
+                       "Watch":   0,  # Watchdog caused last reset
+                       "Halls":   0,  # Bad motor position hall sequence
+                       "DCBusOV": 0,  # DC Bus over voltage
+                       "SoftOC":  0,  # Software over current
+                       "HardOC":  0}  # Hardware over current
+
+        # Flags indicate limiting control loop
+        self.limits = {"HeatS":  0,   # Heatink Temperature
+                       "BusVL":  0,   # Bus Voltage Lower Limit
+                       "BusVU":  0,   # Bus Voltage Upper Limit
+                       "BusC":   0,   # Bus Current
+                       "Velo":   0,   # Velocity
+                       "MotorC": 0,   # Motor Current
+                       "PWM":    0}   # Bridge PWM
+
+        self.status = {"busCurrent":        0,
+                       "busVoltage":        0,
+                       "vehicleVelocity":   0,
+                       "motorVelocity":     0,
+                       "phaseACurrent":     0,
+                       "phaseBCurrent":     0,
+                       "vectVoltReal":      0,
+                       "vectVoltImag":      0,
+                       "vectCurrReal":      0,
+                       "vectCurrImag":      0,
+                       "backEMFReal":       0,    # 0 , by definition
+                       "backEMFImag":       0,
+                       "fifteenVsupply":    0,
+                       "onesixfiveVsupply": 0,
+                       "twofiveVsupply":    0,
+                       "onetwoVsupply":     0,
+                       "fanSpeed":          0,
+                       "fanDrive":          0,
+                       "heatSinkTemp":      0,
+                       "motorTemp":         0,
+                       "airInletTemp":      0,
+                       "processorTemp":     0,
+                       "airOutletTemp":     0,
+                       "capacitorTemp":     0,
+                       "DCBusAmpHours":     0,
+                       "Odometer":          0}
+
+        self.csv_headers = list(self.status.keys()) + \
+            list(self.limits.keys()) + \
+            list(self.errors.keys())
+
+    def csv_data(self):
+        """Returns a list of stats and flags for use in CSV exporting"""
+        data = []
+        for key in self.csv_headers:
+            try:
+                data.append(self.status[key])
+            except:
+                try:
+                    data.append(self.limits[key])
+                except:
+                    data.append(self.errors[key])
+        return data
+
+    def parse_can_msg(self, can_id, can_data):
+        """Parses CAN msg, from SQL db or CAN Network
+
+        Arguments:
+        can_id   -- Integer, message ID from CAN network, determines frame type
+        can_data -- Raw bits from CAN Data field, frame type tells us format
+    """
+        msg_type = self.types[can_id]
         try:
-            self.msgFormat = self.formats[self.msgType]
+            msg_format = self.formats[msg_type]
         except:
-            self.msgFormat = "2*float32"
-            
-        if   self.msgFormat == "u_int32 + char[4]": #Identification information
-            pass   #These Values should not change
-            
-        elif self.msgFormat == "3*u_int16":  #Status Information
+            msg_format = "2*float32"
+
+        if msg_format == "u_int32 + char[4]":  # Identification information
+            pass   # These Values should not change
+
+        elif msg_format == "3*u_int16":  # Status Information
             '''
             self.a = [0,0,0,0,0,0,0,0]
             self.b = [0,0,0,0,0,0,0,0]
-            self.a,self.b,self.c,self.d = struct.unpack("x????????x????????hh", row[3]) #Awful hacky bit flags
-            self.limits["HeatS"]   = bin(self.a)[0]         
-            self.limits["BusVL"]   = bin(self.a)[1]
-            self.limits["BusVU"]   = bin(self.a)[2]
-            self.limits["BusC"]    = bin(self.a)[3]
-            self.limits["Velo"]    = bin(self.a)[4]
-            self.limits["MotorC"]  = bin(self.a)[5]
-            self.limits["PWM"]     = bin(self.a)[6]
-            
-            
+            #Awful hacky bit flags
+            self.a,self.b,self.c,self.d = struct.unpack("hhhh",can_data)
+            self.limits["HeatS"]        = bin(self.a)[0]
+            self.limits["BusVL"]        = bin(self.a)[1]
+            self.limits["BusVU"]        = bin(self.a)[2]
+            self.limits["BusC"]         = bin(self.a)[3]
+            self.limits["Velo"]         = bin(self.a)[4]
+            self.limits["MotorC"]       = bin(self.a)[5]
+            self.limits["PWM"]          = bin(self.a)[6]
+
+
             self.errors["15VUVL"]  = bin(self.b)[-7]
             self.errors["Conf"]    = bin(self.b)[-6]
             self.errors["Watch"]   = bin(self.b)[-5]
@@ -111,61 +137,59 @@ class Tritium:
             self.errors["DCBusOV"] = bin(self.b)[-3]
             self.errors["SoftOC"]  = bin(self.b)[-2]
             self.errors["HardOC"]  = bin(self.b)[-1]
-            
+
             self.activeMotor = self.c
             '''
-            pass
         else:
-            self.a,self.b = struct.unpack("ff", row[3])
-            if   self.msgType =="Bus":              #Bus Measurement   
-                self.busCurrent = self.b
-                self.busVoltage = self.a
-                
-            elif self.msgType =="Vel":              #Velocity Measurement
-                self.vehicleVelocity = self.b
-                self.motorVelocity = self.a
-                
-            elif self.msgType =="PhC":              #Phase Current Measurement
-                self.phaseACurrent = self.b
-                self.phaseBCurrent = self.a
-                
-            elif self.msgType =="MVV":              #Motor Voltage Vector Meas.
-                self.vectVoltReal  = self.b
-                self.vectVoltImag  = self.a
-                
-            elif self.msgType =="MVC":              #Motor Current Vector Meas.                       
-                self.vectCurrReal  = self.b
-                self.vectCurrImag  = self.a
-                
-            elif self.msgType =="MBE":              #Motor BackEMF Vector Meas.                    
-                self.backEMFReal   = self.b
-                self.backEMFImag   = self.a
-                
-            elif self.msgType =="VR1":              #15 & 1.65 Volt. Rail Meas.                    
-                self.fifteenVsupply= self.b
-                self.onesixfiveVsupply=self.a                
-                
-            elif self.msgType =="VR2":              #2.5 & 1.2 Volt. Rail Meas.                    
-                self.twofiveVsupply= self.b
-                self.onetwoVsupply = self.a
-                
-            elif self.msgType =="FSM":              #Fan Speed Measurement
-                self.fanSpeed      = self.b
-                self.fanDrive      = self.a
-                
-            elif self.msgType =="SKT":              #Sink & Motor Temp. Meas.
-                self.heatSinkTemp  = self.b
-                self.motorTemp     = self.a
-                
-            elif self.msgType =="ICT":              #Air In & CPU Temp. Meas.
-                self.airInletTemp  = self.b
-                self.processorTemp = self.a
-                
-            elif self.msgType =="OCT":              #Air out & Cap Temp. Meas.
-                self.airOutletTemp = self.b
-                self.capacitorTemp = self.a
-                
-            elif self.msgType =="ODO":              #Odo. & Bus AmpHours Meas.
-                self.DCBusAmpHours = self.b
-                self.Odometer      = self.a
-        
+            a, b = struct.unpack("ff", can_data)
+            if msg_type == "Bus":              # Bus Measurement
+                self.status["busCurrent"] = b
+                self.status["busVoltage"] = a
+
+            elif msg_type == "Vel":            # Velocity Measrement
+                self.status["vehicleVelocity"] = b
+                self.status["motorVelocity"] = a
+
+            elif msg_type == "PhC":            # Phase Current Measrement
+                self.status["phaseACurrent"] = b
+                self.status["phaseBCurrent"] = a
+
+            elif msg_type == "MVV":            # Motor Voltage Vector Meas
+                self.status["vectVoltReal"] = b
+                self.status["vectVoltImag"] = a
+
+            elif msg_type == "MVC":            # Motor Current Vector Meas
+                self.status["vectCurrReal"] = b
+                self.status["vectCurrImag"] = a
+
+            elif msg_type == "MBE":            # Motor BackEMF Vector Meas
+                self.status["backEMFReal"] = b
+                self.status["backEMFImag"] = a
+
+            elif msg_type == "VR1":            # 15 & 1.65 Volt. Rail Meas
+                self.status["fifteenVsupply"] = b
+                self.status["onesixfiveVsupply"] = a
+
+            elif msg_type == "VR2":            # 2.5 & 1.2 Volt. Rail Meas
+                self.status["twofiveVsupply"] = b
+                self.status["onetwoVsupply"] = a
+
+            elif msg_type == "FSM":            # Fan Speed Measrement
+                self.status["fanSpeed"] = b
+                self.status["fanDrive"] = a
+
+            elif msg_type == "SKT":            # Sink & Motor Temp. Meas
+                self.status["heatSinkTemp"] = b
+                self.status["motorTemp"] = a
+
+            elif msg_type == "ICT":            # Air In & CPU Temp. Meas
+                self.status["airInletTemp"] = b
+                self.status["processorTemp"] = a
+
+            elif msg_type == "OCT":            # Air out & Cap Temp. Meas
+                self.status["airOutletTemp"] = b
+                self.status["capacitorTemp"] = a
+
+            elif msg_type == "ODO":             # Odo. & Bus AmpHours Meas
+                self.status["DCBusAmpHours"] = b
+                self.status["Odometer"] = a
