@@ -7,7 +7,7 @@ Created on Fri Mar 18 13:31:48 2016
 import struct
 
 
-class Tritium:
+class Tritium(object):
     """ Tritium Motor Controller Class
 
     Keyword Arguments:
@@ -141,55 +141,55 @@ class Tritium:
             self.activeMotor = self.c
             '''
         else:
-            a, b = struct.unpack("ff", can_data)
+            first, second = struct.unpack("ff", can_data)
             if msg_type == "Bus":              # Bus Measurement
-                self.status["busCurrent"] = b
-                self.status["busVoltage"] = a
+                self.status["busCurrent"] = second
+                self.status["busVoltage"] = first
 
             elif msg_type == "Vel":            # Velocity Measrement
-                self.status["vehicleVelocity"] = b
-                self.status["motorVelocity"] = a
+                self.status["vehicleVelocity"] = second
+                self.status["motorVelocity"] = first
 
             elif msg_type == "PhC":            # Phase Current Measrement
-                self.status["phaseACurrent"] = b
-                self.status["phaseBCurrent"] = a
+                self.status["phaseACurrent"] = second
+                self.status["phaseBCurrent"] = first
 
             elif msg_type == "MVV":            # Motor Voltage Vector Meas
-                self.status["vectVoltReal"] = b
-                self.status["vectVoltImag"] = a
+                self.status["vectVoltReal"] = second
+                self.status["vectVoltImag"] = first
 
             elif msg_type == "MVC":            # Motor Current Vector Meas
-                self.status["vectCurrReal"] = b
-                self.status["vectCurrImag"] = a
+                self.status["vectCurrReal"] = second
+                self.status["vectCurrImag"] = first
 
             elif msg_type == "MBE":            # Motor BackEMF Vector Meas
-                self.status["backEMFReal"] = b
-                self.status["backEMFImag"] = a
+                self.status["backEMFReal"] = second
+                self.status["backEMFImag"] = first
 
             elif msg_type == "VR1":            # 15 & 1.65 Volt. Rail Meas
-                self.status["fifteenVsupply"] = b
-                self.status["onesixfiveVsupply"] = a
+                self.status["fifteenVsupply"] = second
+                self.status["onesixfiveVsupply"] = first
 
             elif msg_type == "VR2":            # 2.5 & 1.2 Volt. Rail Meas
-                self.status["twofiveVsupply"] = b
-                self.status["onetwoVsupply"] = a
+                self.status["twofiveVsupply"] = second
+                self.status["onetwoVsupply"] = first
 
             elif msg_type == "FSM":            # Fan Speed Measrement
-                self.status["fanSpeed"] = b
-                self.status["fanDrive"] = a
+                self.status["fanSpeed"] = second
+                self.status["fanDrive"] = first
 
             elif msg_type == "SKT":            # Sink & Motor Temp. Meas
-                self.status["heatSinkTemp"] = b
-                self.status["motorTemp"] = a
+                self.status["heatSinkTemp"] = second
+                self.status["motorTemp"] = first
 
             elif msg_type == "ICT":            # Air In & CPU Temp. Meas
-                self.status["airInletTemp"] = b
-                self.status["processorTemp"] = a
+                self.status["airInletTemp"] = second
+                self.status["processorTemp"] = first
 
             elif msg_type == "OCT":            # Air out & Cap Temp. Meas
-                self.status["airOutletTemp"] = b
-                self.status["capacitorTemp"] = a
+                self.status["airOutletTemp"] = second
+                self.status["capacitorTemp"] = first
 
             elif msg_type == "ODO":             # Odo. & Bus AmpHours Meas
-                self.status["DCBusAmpHours"] = b
-                self.status["Odometer"] = a
+                self.status["DCBusAmpHours"] = second
+                self.status["Odometer"] = first
