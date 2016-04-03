@@ -32,7 +32,7 @@ MOTOR_BASE_ID = int("0x600", 16)
 DRIVERBASE_ID = int("0x500", 16)
 
 
-motor = motors.Tritium(MOTOR_BASE_ID)
+motor = motors.Wavesculptor20(MOTOR_BASE_ID)
 
 start_time = '2015-18-16 00:00:48'
 end_time = '2016-10-17 04:18:48'
@@ -50,7 +50,6 @@ get_newer_charges = ("SELECT msg_no, msg_time, msg_id, msg_data "
                      "FROM can "
                      "WHERE msg_id <= 1550 "
                      "AND msg_id >= 1536 "
-                   # "AND msg_no > 3591818 "
                      "ORDER BY msg_no ASC;")
 
 print(get_newer_charges)

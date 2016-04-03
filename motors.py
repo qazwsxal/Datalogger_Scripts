@@ -7,7 +7,7 @@ Created on Fri Mar 18 13:31:48 2016
 import struct
 
 
-class Tritium(object):
+class Wavesculptor20(object):
     """ Tritium Motor Controller Class
 
     Keyword Arguments:
@@ -92,10 +92,10 @@ class Tritium(object):
         for key in self.csv_headers:
             try:
                 data.append(self.status[key])
-            except:
+            except KeyError:
                 try:
                     data.append(self.limits[key])
-                except:
+                except KeyError:
                     data.append(self.errors[key])
         return data
 
@@ -109,7 +109,7 @@ class Tritium(object):
         msg_type = self.types[can_id]
         try:
             msg_format = self.formats[msg_type]
-        except:
+        except KeyError:
             msg_format = "2*float32"
 
         if msg_format == "u_int32 + char[4]":  # Identification information
