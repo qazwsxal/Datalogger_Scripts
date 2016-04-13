@@ -50,17 +50,18 @@ get_newer_charges = ("SELECT msg_no, msg_time, msg_id, msg_data "
                      "FROM can "
                      "WHERE msg_id <= 1550 "
                      "AND msg_id >= 1536 "
+                     "AND msg_no > 2591818 "
                      "ORDER BY msg_no ASC;")
 
 print(get_newer_charges)
 cursor.execute(get_newer_charges)
 with open('20160316.csv', 'w', newline='') as fp:
-    a = csv.writer(fp, delimiter=',')
+    #a = csv.writer(fp, delimiter=',')
     headers = [motor.csv_headers]
-    a.writerows(headers)
+    #a.writerows(headers)
     for row in cursor:
         motor.parse_can_msg(row[2], row[3])
-        # for k, v in motor.status().items():
-        #    print(k,v)
-        data = [[row[0]] + [row[1]] + motor.csv_data()]
-        a.writerows(data)
+        for k, v in motor.status().items():
+            print(k,v)
+        #data = [[row[0]] + [row[1]] + motor.csv_data()]
+        #a.writerows(data)

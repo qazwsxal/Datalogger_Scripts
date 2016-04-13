@@ -55,43 +55,60 @@ class Wavesculptor20(object):
                        "MotorC": 0,   # Motor Current
                        "PWM":    0}   # Bridge PWM
 
-        self.status = {"busCurrent":        0,
-                       "busVoltage":        0,
-                       "vehicleVelocity":   0,
-                       "motorVelocity":     0,
-                       "phaseACurrent":     0,
-                       "phaseBCurrent":     0,
-                       "vectVoltReal":      0,
-                       "vectVoltImag":      0,
-                       "vectCurrReal":      0,
-                       "vectCurrImag":      0,
-                       "backEMFReal":       0,    # 0 , by definition
-                       "backEMFImag":       0,
-                       "fifteenVsupply":    0,
-                       "onesixfiveVsupply": 0,
-                       "twofiveVsupply":    0,
-                       "onetwoVsupply":     0,
-                       "fanSpeed":          0,
-                       "fanDrive":          0,
-                       "heatSinkTemp":      0,
-                       "motorTemp":         0,
-                       "airInletTemp":      0,
-                       "processorTemp":     0,
-                       "airOutletTemp":     0,
-                       "capacitorTemp":     0,
-                       "DCBusAmpHours":     0,
-                       "Odometer":          0}
+        self._cangroups = {"Bus":          (0, 0),  # Bus Measurement
+                           "PhC":          (0, 0),  # Velocity Measrement
+                           "Vel":          (0, 0),  # Velocity Measrement
+                           "MVV":          (0, 0),  # Motor Voltage Vector Meas
+                           "MVC":          (0, 0),  # Motor Current Vector Meas
+                           "MBE":          (0, 0),  # Motor BackEMF Vector Meas
+                           "VR1":          (0, 0),  # 15 & 1.65 Volt. Rail Meas
+                           "VR2":          (0, 0),  # 2.5 & 1.2 Volt. Rail Meas
+                           "FSM":          (0, 0),  # Fan Speed Measrement
+                           "SKT":          (0, 0),  # Sink & Motor Temp. Meas
+                           "ICT":          (0, 0),  # Air In & CPU Temp. Meas
+                           "OCT":          (0, 0),  # Air out & Cap Temp. Meas
+                           "ODO":          (0, 0)}  # Odo. & Bus AmpHours Meas
 
-        self.csv_headers = list(self.status.keys()) + \
+        self.csv_headers = list(self.status().keys()) + \
             list(self.limits.keys()) + \
             list(self.errors.keys())
+
+    def status(self):
+        """returns a dict of motor status"""
+        statdict = {"busCurrent":        self._cangroups["Bus"][0],
+                    "busVoltage":        self._cangroups["Bus"][1],
+                    "vehicleVelocity":   self._cangroups["Vel"][0],
+                    "motorVelocity":     self._cangroups["Vel"][1],
+                    "phaseACurrent":     self._cangroups["PhC"][0],
+                    "phaseBCurrent":     self._cangroups["PhC"][1],
+                    "vectVoltReal":      self._cangroups["MVV"][0],
+                    "vectVoltImag":      self._cangroups["MVV"][1],
+                    "vectCurrReal":      self._cangroups["MVC"][0],
+                    "vectCurrImag":      self._cangroups["MVC"][1],
+                    "backEMFReal":       self._cangroups["MBE"][0],
+                    "backEMFImag":       self._cangroups["MBE"][1],
+                    "fifteenVsupply":    self._cangroups["VR1"][0],
+                    "onesixfiveVsupply": self._cangroups["VR1"][1],
+                    "twofiveVsupply":    self._cangroups["VR2"][0],
+                    "onetwoVsupply":     self._cangroups["VR2"][1],
+                    "fanSpeed":          self._cangroups["FSM"][0],
+                    "fanDrive":          self._cangroups["FSM"][1],
+                    "heatSinkTemp":      self._cangroups["SKT"][0],
+                    "motorTemp":         self._cangroups["SKT"][1],
+                    "airInletTemp":      self._cangroups["ICT"][0],
+                    "processorTemp":     self._cangroups["ICT"][1],
+                    "airOutletTemp":     self._cangroups["OCT"][0],
+                    "capacitorTemp":     self._cangroups["OCT"][1],
+                    "DCBusAmpHours":     self._cangroups["ODO"][0],
+                    "Odometer":          self._cangroups["ODO"][1]}
+        return statdict
 
     def csv_data(self):
         """Returns a list of stats and flags for use in CSV exporting"""
         data = []
         for key in self.csv_headers:
             try:
-                data.append(self.status[key])
+                data.append(self.status()[key])
             except KeyError:
                 try:
                     data.append(self.limits[key])
@@ -141,55 +158,4 @@ class Wavesculptor20(object):
             self.activeMotor = self.c
             '''
         else:
-            first, second = struct.unpack("ff", can_data)
-            if msg_type == "Bus":              # Bus Measurement
-                self.status["busCurrent"] = second
-                self.status["busVoltage"] = first
-
-            elif msg_type == "Vel":            # Velocity Measrement
-                self.status["vehicleVelocity"] = second
-                self.status["motorVelocity"] = first
-
-            elif msg_type == "PhC":            # Phase Current Measrement
-                self.status["phaseACurrent"] = second
-                self.status["phaseBCurrent"] = first
-
-            elif msg_type == "MVV":            # Motor Voltage Vector Meas
-                self.status["vectVoltReal"] = second
-                self.status["vectVoltImag"] = first
-
-            elif msg_type == "MVC":            # Motor Current Vector Meas
-                self.status["vectCurrReal"] = second
-                self.status["vectCurrImag"] = first
-
-            elif msg_type == "MBE":            # Motor BackEMF Vector Meas
-                self.status["backEMFReal"] = second
-                self.status["backEMFImag"] = first
-
-            elif msg_type == "VR1":            # 15 & 1.65 Volt. Rail Meas
-                self.status["fifteenVsupply"] = second
-                self.status["onesixfiveVsupply"] = first
-
-            elif msg_type == "VR2":            # 2.5 & 1.2 Volt. Rail Meas
-                self.status["twofiveVsupply"] = second
-                self.status["onetwoVsupply"] = first
-
-            elif msg_type == "FSM":            # Fan Speed Measrement
-                self.status["fanSpeed"] = second
-                self.status["fanDrive"] = first
-
-            elif msg_type == "SKT":            # Sink & Motor Temp. Meas
-                self.status["heatSinkTemp"] = second
-                self.status["motorTemp"] = first
-
-            elif msg_type == "ICT":            # Air In & CPU Temp. Meas
-                self.status["airInletTemp"] = second
-                self.status["processorTemp"] = first
-
-            elif msg_type == "OCT":            # Air out & Cap Temp. Meas
-                self.status["airOutletTemp"] = second
-                self.status["capacitorTemp"] = first
-
-            elif msg_type == "ODO":             # Odo. & Bus AmpHours Meas
-                self.status["DCBusAmpHours"] = second
-                self.status["Odometer"] = first
+            self._cangroups[msg_type] = struct.unpack("ff", can_data)
