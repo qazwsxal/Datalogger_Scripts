@@ -35,8 +35,7 @@ class Wavesculptor20(object):
                         "Stat": "3*u_int16"}        # Status Information
         # Else: 2 floats
 
-        self.serial_number = 12345    # Not sure
-        self.active_motor = 0
+        self.config = {"seriaNo": 12345, "activeMotor": 0}
         # Flags inidicating errors
         self.errors = {"15VUVL":  0,  # A 15V rail under volt lock out occurred
                        "Conf":    0,  # Config Read Error
