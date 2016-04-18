@@ -5,7 +5,8 @@ DUEM Datalogger Scripts
 
 TODO: Migrate to SQLchemy-based interface, abstraction introduced will make data checking easier. (less hand-coded SQL too, always a good thing!)
 
-##Setup
+Setup
+-----
 
 Run setup.sh after making sure it's executeable
 
