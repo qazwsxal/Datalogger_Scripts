@@ -157,5 +157,5 @@ class Wavesculptor20(object):
             self.activeMotor = self.c
             '''
         else:
-            a,b = struct.unpack("ff", can_data)
-            self._cangroups[msg_type] = (b,a)
+            a, b = struct.unpack("ff", can_data)
+            self._cangroups[msg_type] = (b, a)

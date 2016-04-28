@@ -37,9 +37,6 @@ Base.metadata.create_all(engine)
 session_init = sessionmaker(bind=engine)
 session = session_init()
 
-start_time = '2015-18-16 00:00:48'
-end_time = '2016-10-17 04:18:48'
-
 
 # Charge count message ID's
 # connect to db
