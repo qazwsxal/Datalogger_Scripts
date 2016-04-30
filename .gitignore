@@ -1,6 +1,7 @@
 /.venv
 *.swp
 *.csv
+*.pyc
 bower.json
 release/
 /tags
