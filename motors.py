@@ -12,7 +12,7 @@ class Wavesculptor20(object):
 
     Keyword Arguments:
     mc_base_address -- Integer, Motor Controller's base address,
-                     default 1536 (0x600)
+                       default 1536 (0x600)
     """
     def __init__(self, mc_base_address=1536):
         self.types = {mc_base_address:      "ID",    # Identification Info
@@ -31,11 +31,13 @@ class Wavesculptor20(object):
                       mc_base_address + 13: "OCT",   # Air out & Cap Temp. Meas
                       mc_base_address + 14: "ODO"}   # Odo. & Bus AmpHours
 
-        self.formats = {"ID": "u_int32 + char[4]",  # Identification info.
-                        "Stat": "3*u_int16"}        # Status Information
-        # Else: 2 floats
+        self.formats = {"ID":    "u_int32 & char[4]",  # Identification info.
+                        "Stat":  "3*u_int16"}          # Status Information
+        #               all other messages: 2*float32    Telemetry (standard)
 
-        self.config = {"seriaNo": 12345, "activeMotor": 0}
+        self.config = {"seriaNo": 12345,  # These aren't that important but
+                       "activeMotor": 0}  # worth having for full WS20 spec.
+
         # Flags inidicating errors
         self.errors = {"15VUVL":  0,  # A 15V rail under volt lock out occurred
                        "Conf":    0,  # Config Read Error
@@ -54,6 +56,7 @@ class Wavesculptor20(object):
                        "MotorC": 0,   # Motor Current
                        "PWM":    0}   # Bridge PWM
 
+        # Values grouped as they arrive over CAN bus
         self._cangroups = {"Bus":          (0, 0),  # Bus Measurement
                            "PhC":          (0, 0),  # Velocity Measrement
                            "Vel":          (0, 0),  # Velocity Measrement
@@ -74,6 +77,8 @@ class Wavesculptor20(object):
 
     def status(self):
         """returns a dict of motor status"""
+        # Rewrite using python getter + @property decorator
+        # motor.status shouldn't be a function call, feels weird.
         statdict = {"busCurrent":        self._cangroups["Bus"][0],
                     "busVoltage":        self._cangroups["Bus"][1],
                     "vehicleVelocity":   self._cangroups["Vel"][0],
@@ -104,6 +109,7 @@ class Wavesculptor20(object):
 
     def csv_data(self):
         """Returns a list of stats and flags for use in CSV exporting"""
+        # There has to be a nicer way to do this...
         data = []
         for key in self.csv_headers:
             try:
@@ -121,7 +127,7 @@ class Wavesculptor20(object):
         Arguments:
         can_id   -- Integer, message ID from CAN network, determines frame type
         can_data -- Raw bits from CAN Data field, frame type tells us format
-    """
+        """
         msg_type = self.types[can_id]
         try:
             msg_format = self.formats[msg_type]
@@ -133,6 +139,7 @@ class Wavesculptor20(object):
 
         elif msg_format == "3*u_int16":  # Status Information
             '''
+            # Just rewrite this entire section. It never worked.
             self.a = [0,0,0,0,0,0,0,0]
             self.b = [0,0,0,0,0,0,0,0]
             #Awful hacky bit flags
@@ -157,5 +164,5 @@ class Wavesculptor20(object):
             self.activeMotor = self.c
             '''
         else:
-            a, b = struct.unpack("ff", can_data)
-            self._cangroups[msg_type] = (b, a)
+            first, second = struct.unpack("ff", can_data)
+            self._cangroups[msg_type] = (second, first)

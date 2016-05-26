@@ -36,8 +36,7 @@ class WS20_DOM(Base):
     DCBusAmpHours = sqla.Column(sqla.Float)
     Odometer = sqla.Column(sqla.Float)
 
-
     def __repr__(self):
-        return "<WS20_DOM(busCurrent='%s', busVoltage='%s', vehicleVelocity='%s')>" % (
+        return "<WS20_DOM(busCurrent='%s', busVoltage='%s', \
+                vehicleVelocity='%s')>" % (
                 self.busCurrent, self.busVoltage, self.vehicleVelocity)
-
