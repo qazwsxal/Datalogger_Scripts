@@ -166,3 +166,20 @@ class Wavesculptor20(object):
         else:
             first, second = struct.unpack("ff", can_data)
             self._cangroups[msg_type] = (second, first)
+
+    def get_speed(self, units='km/h'):
+        """ Returns speed of motor as a float.
+
+        Keyword Arguments:
+        units -- String, units of velocity.
+                 default: units="km/h"
+                 valid: kph, km/h, m/s, mph
+        """
+
+        if units == 'km/h' or units == 'kph':
+            speed = 3.6 * self._cangroups["Vel"][0]
+        elif units == 'mph':
+            speed = 2.2369363 * self._cangroups["Vel"][0]
+        elif units == 'm/s':
+            speed = 1.0 * self._cangroups["Vel"][0]
+        return speed
