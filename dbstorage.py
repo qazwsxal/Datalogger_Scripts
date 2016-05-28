@@ -40,3 +40,13 @@ class WS20_DOM(Base):
         return "<WS20_DOM(busCurrent='%s', busVoltage='%s', \
                 vehicleVelocity='%s')>" % (
                 self.busCurrent, self.busVoltage, self.vehicleVelocity)
+
+
+class Controls_DOM(Base):
+    __tablename__ = 'controls'
+
+    id = sqla.Column(sqla.BigInteger, primary_key=True)
+    time = sqla.Column(sqla.DateTime)
+    busCurrent = sqla.Column(sqla.Float)
+    motorCurrent = sqla.Column(sqla.Float)
+    motorVelocity = sqla.Column(sqla.Float)
