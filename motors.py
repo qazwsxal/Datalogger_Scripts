@@ -15,24 +15,24 @@ class Wavesculptor20(object):
                        default 1536 (0x600)
     """
     def __init__(self, mc_base_address=1536):
-        self.types = {mc_base_address:      "ID",    # Identification Info
-                      mc_base_address + 1:  "Stat",  # Status Information
-                      mc_base_address + 2:  "Bus",   # Bus Measrement
-                      mc_base_address + 3:  "Vel",   # Velocity Measrement
-                      mc_base_address + 4:  "PhC",   # Phase Current Measrement
-                      mc_base_address + 5:  "MVV",   # Motor Voltage Vector
-                      mc_base_address + 6:  "MVC",   # Motor Current Vector
-                      mc_base_address + 7:  "MBE",   # Motor BackEMF Vector
-                      mc_base_address + 8:  "VR1",   # 15 & 1.65 Volt. Rail
-                      mc_base_address + 9:  "VR2",   # 2.5 & 1.2 Volt. Rail
-                      mc_base_address + 10: "FSM",   # Fan Speed Measrement
-                      mc_base_address + 11: "SKT",   # Sink & Motor Temp. Meas
-                      mc_base_address + 12: "ICT",   # Air In & CPU Temp. Meas
-                      mc_base_address + 13: "OCT",   # Air out & Cap Temp. Meas
-                      mc_base_address + 14: "ODO"}   # Odo. & Bus AmpHours
+        self.types = {mc_base_address:      "ID",   # Identification Info
+                      mc_base_address + 1:  "Sts",  # Staus Information
+                      mc_base_address + 2:  "Bus",  # Bus (Amps + Volts)
+                      mc_base_address + 3:  "Vel",  # Velocity (m/s + rpm)
+                      mc_base_address + 4:  "PhC",  # Phase Current
+                      mc_base_address + 5:  "MVV",  # Motor Voltage Vector
+                      mc_base_address + 6:  "MVC",  # Motor Current Vector
+                      mc_base_address + 7:  "MBE",  # Motor BackEMF Vector
+                      mc_base_address + 8:  "VR1",  # 15 & 1.65 Volt. Rail
+                      mc_base_address + 9:  "VR2",  # 2.5 & 1.2 Volt. Rail
+                      mc_base_address + 10: "FSM",  # Fan Speed Measrement
+                      mc_base_address + 11: "SKT",  # Sink & Motor Temperature
+                      mc_base_address + 12: "ICT",  # Air In & CPU Temperature
+                      mc_base_address + 13: "OCT",  # Air Out & Cap Temperature
+                      mc_base_address + 14: "ODO"}  # Odo. & Bus AmpHours
 
         self.formats = {"ID":    "u_int32 & char[4]",  # Identification info.
-                        "Stat":  "3*u_int16"}          # Status Information
+                        "Sts":  "3*u_int16"}           # Staus Information
         #               all other messages: 2*float32    Telemetry (standard)
 
         self.config = {"seriaNo": 12345,  # These aren't that important but
@@ -122,13 +122,17 @@ class Wavesculptor20(object):
         return data
 
     def parse_can_msg(self, can_id, can_data):
-        """Parses CAN msg, from SQL db or CAN Network
+        """Parses CAN msg, from SQL db or CAN Network, updates internal state
 
+        Returns true if ID matches.
         Arguments:
         can_id   -- Integer, message ID from CAN network, determines frame type
         can_data -- Raw bits from CAN Data field, frame type tells us format
         """
-        msg_type = self.types[can_id]
+        try:
+            msg_type = self.types[can_id]
+        except KeyError:
+            return 0
         try:
             msg_format = self.formats[msg_type]
         except KeyError:
@@ -139,7 +143,7 @@ class Wavesculptor20(object):
 
         elif msg_format == "3*u_int16":  # Status Information
             '''
-            # Just rewrite this entire section. It never worked.
+            # Just rewrite this entire, awful, section. It never worked.
             self.a = [0,0,0,0,0,0,0,0]
             self.b = [0,0,0,0,0,0,0,0]
             #Awful hacky bit flags
@@ -166,12 +170,13 @@ class Wavesculptor20(object):
         else:
             first, second = struct.unpack("ff", can_data)
             self._cangroups[msg_type] = (second, first)
+        return 1
 
     def get_speed(self, units='km/h'):
         """ Returns speed of motor as a float.
 
         Keyword Arguments:
-        units -- String, units of velocity.
+        units -- String
                  default: units="km/h"
                  valid: kph, km/h, m/s, mph
         """
@@ -181,5 +186,5 @@ class Wavesculptor20(object):
         elif units == 'mph':
             speed = 2.2369363 * self._cangroups["Vel"][0]
         elif units == 'm/s':
-            speed = 1.0 * self._cangroups["Vel"][0]
+            speed = float(self._cangroups["Vel"][0])
         return speed
