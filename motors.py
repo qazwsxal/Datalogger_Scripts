@@ -34,7 +34,7 @@ class Wavesculptor20(object):
         self.can_range = range(mc_base_address, mc_base_address+15)
 
         self.formats = {"ID":    "u_int32 & char[4]",  # Identification info.
-                        "Stat":  "3*u_int16"}          # Status Information
+                        "Sts":  "3*u_int16"}          # Status Information
         #               all other messages: 2*float32    Telemetry (standard)
 
         self.config = {"seriaNo": 12345,  # These aren't that important but
