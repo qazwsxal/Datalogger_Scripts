@@ -6,44 +6,61 @@ Logs CAN messages to mysql server
 
 @author: Adam Leach adam.leach@dur.ac.uk, qazwsxalan@gmail.com
 """
-# import sys
+import sys
 import datetime
-import motors
-from dbstorage import WS20_DOM
-from dbstorage import Base
 import sqlalchemy as sqla
 from sqlalchemy.orm import sessionmaker
+import motors
+import controls
+import dbstorage
 import can
 # mysql config
-USERNAME = "root"
-DATABASE = "2016test"
-# HOST = "192.168.7.2"
-HOST = "127.0.0.1"
-PASSWORD = "dusc2015"
+username = "root"
+database = "2016test"
+# host = "192.168.7.2"
+host = "127.0.0.1"
+password = "dusc2015"
+
+
+# can config
+motor_base_id = int("0x600", 16)
+driver_base_id = int("0x500", 16)
+can_interface = sys.argv[1]
+can_interface_type = 'socketcan_ctypes'
+
+bus = can.interface.bus(can_interface, can_interface_type)
 
 serveraddr = "mysql+mysqlconnector://%s:%s@%s/%s" % (
-    USERNAME, PASSWORD, HOST, DATABASE)
+    username, password, host, database)
 engine = sqla.create_engine(serveraddr, pool_recycle=3600)
-motor_DOM = WS20_DOM()
-Base.metadata.create_all(engine)
+
+motor = motors.Wavesculptor20(mc_base_address=motor_base_id)
+controls = controls.Controls(controls_base_address=driver_base_id)
+can_objects = [motor, controls]
+
+motor_dom = dbstorage.WS20_DOM()
+controls_dom = dbstorage.Controls_DOM()
+can_doms = [motor_dom, controls_dom]
+
+dbstorage.Base.metadata.create_all(engine)
 session_init = sessionmaker(bind=engine)
 session = session_init()
 
-# CAN config
-MOTOR_BASE_ID = int("0x600", 16)
-DRIVERBASE_ID = int("0x500", 16)
-
-CAN_INTERFACE = 'can0'
-CAN_INTERFACE_TYPE = 'socketcan_ctypes'
-
-bus = can.interface.Bus(CAN_INTERFACE, CAN_INTERFACE_TYPE)
-
-motor = motors.Wavesculptor20(MOTOR_BASE_ID)
 
 while 1:
     msg = bus.recv()
-    motor.parse_can_msg(msg.arbitration_id, msg.data)
-    data = motor.status()
-    data["time"] = datetime.datetime.now()
-    session.add(WS20_DOM(**data))
-    session.commit()
+    for i, active_obj in enumerate(can_objects):
+        if msg.arbitration_id in active_obj.active_range:
+            old_data = active_obj.status()
+            active_obj.parse_active_msg(msg.arbitration_id, msg.data)
+            data = active_obj.status()
+            changed = {}
+            for key in old_data:
+                if data[key] == old_data[key]:
+                    changed[key] = None  # takes up less space in SQL
+                else:
+                    changed[key] = data[key]
+            changed["time"] = datetime.datetime.now()
+            active_dom = can_doms[i]
+            session.add(active_dom(**changed))
+            session.commit()

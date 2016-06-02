@@ -1,14 +1,14 @@
 import sqlalchemy as sqla
 from sqlalchemy.ext.declarative import declarative_base
-
+from sqlalchemy.dialects.mysql import DATETIME
 Base = declarative_base()
 
 
 class WS20_DOM(Base):
     __tablename__ = 'motorstate'
 
-    id = sqla.Column(sqla.BigInteger, primary_key=True)
-    time = sqla.Column(sqla.DateTime)
+    msg_id = sqla.Column(sqla.BigInteger, primary_key=True)
+    time = sqla.Column(DATETIME)
     busCurrent = sqla.Column(sqla.Float)
     busVoltage = sqla.Column(sqla.Float)
     vehicleVelocity = sqla.Column(sqla.Float)
@@ -45,8 +45,8 @@ class WS20_DOM(Base):
 class Controls_DOM(Base):
     __tablename__ = 'controls'
 
-    id = sqla.Column(sqla.BigInteger, primary_key=True)
-    time = sqla.Column(sqla.DateTime)
+    msg_id = sqla.Column(sqla.BigInteger, primary_key=True)
+    time = sqla.Column(DATETIME)
     busCurrent = sqla.Column(sqla.Float)
     motorCurrent = sqla.Column(sqla.Float)
     motorVelocity = sqla.Column(sqla.Float)
