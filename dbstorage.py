@@ -4,11 +4,13 @@ from sqlalchemy.dialects.mysql import DATETIME
 Base = declarative_base()
 
 
-class WS20_DOM(Base):
+class WS20_ORM(Base):
+    ''' Object-Relational Map for Wavesculptor 20
+    '''
     __tablename__ = 'motorstate'
 
     msg_id = sqla.Column(sqla.BigInteger, primary_key=True)
-    time = sqla.Column(DATETIME)
+    time = sqla.Column(DATETIME(fsp=4))
     busCurrent = sqla.Column(sqla.Float)
     busVoltage = sqla.Column(sqla.Float)
     vehicleVelocity = sqla.Column(sqla.Float)
@@ -37,16 +39,16 @@ class WS20_DOM(Base):
     Odometer = sqla.Column(sqla.Float)
 
     def __repr__(self):
-        return "<WS20_DOM(busCurrent='%s', busVoltage='%s', \
+        return "<WS20_ORM(busCurrent='%s', busVoltage='%s', \
                 vehicleVelocity='%s')>" % (
                 self.busCurrent, self.busVoltage, self.vehicleVelocity)
 
 
-class Controls_DOM(Base):
+class Controls_ORM(Base):
     __tablename__ = 'controls'
 
     msg_id = sqla.Column(sqla.BigInteger, primary_key=True)
-    time = sqla.Column(DATETIME)
+    time = sqla.Column(DATETIME(fsp=4))
     busCurrent = sqla.Column(sqla.Float)
     motorCurrent = sqla.Column(sqla.Float)
     motorVelocity = sqla.Column(sqla.Float)
