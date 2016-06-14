@@ -28,7 +28,7 @@ motor_base_id = int("0x600", 16)
 driver_base_id = int("0x500", 16)
 can_interface = sys.argv[1]
 can_interface_type = 'socketcan_ctypes'
-bus = native_bus(channel=can_interface)
+bus = native_bus.SocketscanNative_Bus(channel=can_interface)
 
 # Set up bus objects
 motor = motors.Wavesculptor20(mc_base_address=motor_base_id)
