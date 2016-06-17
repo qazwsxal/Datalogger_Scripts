@@ -7,11 +7,11 @@ sudo ip link set can0 up
 
 # enable slcan0
 ifconfig slcan0 down
-slcan_attach -f -o -s8 /dev/<CANUSB tty>
-slcand /dev/<CANUSB tty> slcan0
+slcand -o -c -f -s8 /dev/ttyUSB0 slcan0
 ifconfig slcan0 up
+
 # activate venv
 source /root/Datalogger_Scripts/.venv/bin/activate
 
 # run CANlog.py
-python3 /root/Datalogger_Scripts/CANlog.py
+python3 /root/Datalogger_Scripts/CANlog.py slcan0
