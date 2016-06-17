@@ -37,8 +37,8 @@ can_objects = [motor, controls]
 
 
 # Set up bus object ORM interfaces
-motor_orm = dbstorage.WS20_ORM()
-controls_orm = dbstorage.Controls_ORM()
+motor_orm = dbstorage.WS20_ORM
+controls_orm = dbstorage.Controls_ORM
 can_orms = [motor_orm, controls_orm]
 
 # mysql setup
@@ -51,10 +51,10 @@ session = session_init()
 while 1:
     msg = bus.recv()
     for i, active_obj in enumerate(can_objects):
-        if msg.arbitration_id in active_obj.active_range:
+        if msg.arbitration_id in active_obj.can_range:
             # Get a copy of old data, update and count changes
             old_data = active_obj.status()
-            active_obj.parse_active_msg(msg.arbitration_id, msg.data)
+            active_obj.parse_can_msg(msg.arbitration_id, msg.data)
             data = active_obj.status()
             changed = {}
             for key in old_data:

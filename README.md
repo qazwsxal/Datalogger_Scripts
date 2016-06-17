@@ -20,14 +20,13 @@ This sets up the required packages for the python scripts to run correctly, this
 ##Running
 
 Python scripts need virtualenv to be active in order to run correctly `source .venv/bin/activate`
-Run `spyder3` in the terminal after virtualenv activated in order to have the correct package versions loaded when developing/debugging.
 
-Scripts can also be run by calling their respective shell scripts, this automatically sets up the virtualenv, which is particularly useful for scripts to be used in cron jobs, on startup, or otherwise called automatically (dmesg trigger?). 
+Scripts can also be run by calling their respective shell scripts, this automatically sets up the virtualenv, which is particularly useful for scripts to be used in cron jobs, on startup, or otherwise called automatically (dmesg trigger?).
 
 
 ## CANUSB caveats
 
-The [CANUSB from LAWICEL](www.canusb.com) is a wonderful peice of equipment that easily connects to Tritium's awkward-to-find-connectors-for CAN network. It can be used as a SocketCAN interface the same way that the Beaglebone's onboard CAN transciever can. 
+The [CANUSB from LAWICEL](www.canusb.com) is a wonderful peice of equipment that easily connects to Tritium's awkward-to-find-connectors-for CAN network. It can be used as a SocketCAN interface the same way that the Beaglebone's onboard CAN transciever can.
 
 *To set up CANUSB as a CAN interface*
 ```
