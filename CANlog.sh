@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # enable can0
 sudo ip link set can0 type can bitrate 1000000
