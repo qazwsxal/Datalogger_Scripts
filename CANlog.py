@@ -56,17 +56,18 @@ while 1:
             old_data = active_obj.status()
             active_obj.parse_can_msg(msg.arbitration_id, msg.data)
             data = active_obj.status()
-            changed = {}
-            for key in old_data:
-                # only log updated values, saves space.
-                # SQLalchemy needs to be explicitly told a key is NULL
-                if data[key] == old_data[key]:
-                    changed[key] = None
-                else:
-                    changed[key] = data[key]
-            changed["time"] = datetime.datetime.now()
+            data["time"] = datetime.datetime.now()
+            # changed = {}
+            # for key in old_data:
+            #     # only log updated values, saves space.
+            #     # SQLalchemy needs to be explicitly told a key is NULL
+            #     if data[key] == old_data[key]:
+            #         changed[key] = None
+            #     else:
+            #         changed[key] = data[key]
+            #         print(key, data[key])
             active_orm = can_orms[i]
-            session.add(active_orm(**changed))
+            session.add(active_orm(**data))
             # Commiting every message might strain server,
             # setting transaction flushes to occur
             # once per second should help
