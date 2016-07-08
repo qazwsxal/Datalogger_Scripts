@@ -6,7 +6,7 @@
 # sudo ip link set can0 up
 
 # enable slcan0
-slcand -o -c -f -s8 /dev/ttyUSB0 slcan0
+slcand -o -c -f -s8 /dev/ttyCAN slcan0
 ifconfig slcan0 up
 
 # activate venv

@@ -13,6 +13,7 @@ from sqlalchemy.orm import sessionmaker
 import motors
 import controls
 import dbstorage
+import pickle
 from can.interfaces import socketcan_native as native_bus
 # mysql config
 username = "root"
@@ -41,6 +42,11 @@ motor_orm = dbstorage.WS20_ORM
 controls_orm = dbstorage.Controls_ORM
 can_orms = [motor_orm, controls_orm]
 
+# Set up bus object shared memory files
+motor_file = "/dev/shm/motor"
+controls_file = "/dev/shm/controls"
+can_files = [motor_file, controls_file]
+
 # mysql setup
 engine = sqla.create_engine(serveraddr, pool_recycle=3600)
 dbstorage.Base.metadata.create_all(engine)
@@ -57,17 +63,17 @@ while 1:
             active_obj.parse_can_msg(msg.arbitration_id, msg.data)
             data = active_obj.status()
             data["time"] = datetime.datetime.now()
-            # changed = {}
-            # for key in old_data:
-            #     # only log updated values, saves space.
-            #     # SQLalchemy needs to be explicitly told a key is NULL
-            #     if data[key] == old_data[key]:
-            #         changed[key] = None
-            #     else:
-            #         changed[key] = data[key]
-            #         print(key, data[key])
+            changed = {}
+            for key in old_data:
+            # only log updated values, saves space.
+            # SQLalchemy needs to be explicitly told a key is NULL
+                if data[key] == old_data[key]:
+                    changed[key] = None
+                else:
+                    changed[key] = data[key]
+            pickle.dump(data, open(can_files[i],"wb+"))
             active_orm = can_orms[i]
-            session.add(active_orm(**data))
+            session.add(active_orm(**changed))
             # Commiting every message might strain server,
             # setting transaction flushes to occur
             # once per second should help

@@ -52,3 +52,26 @@ class Controls_ORM(Base):
     busCurrent = sqla.Column(sqla.Float)
     motorCurrent = sqla.Column(sqla.Float)
     motorVelocity = sqla.Column(sqla.Float)
+
+
+class GPS_ORM(Base):
+    __tablename__ = 'gps_tpv'
+
+    msg_id = sqla.Column(sqla.BigInteger, primary_key=True)
+    device = sqla.Column(sqla.String(13))
+    tag = sqla.Column(sqla.String(40))
+    mode = sqla.Column(sqla.SmallInteger)
+    time = sqla.Column(DATETIME(fsp=4))
+    ept = sqla.Column(sqla.Float) 
+    lat = sqla.Column(sqla.Float) 
+    lon = sqla.Column(sqla.Float) 
+    alt = sqla.Column(sqla.Float) 
+    epx = sqla.Column(sqla.Float) 
+    epy = sqla.Column(sqla.Float) 
+    epv = sqla.Column(sqla.Float) 
+    track = sqla.Column(sqla.Float) 
+    speed = sqla.Column(sqla.Float) 
+    climb = sqla.Column(sqla.Float) 
+    epd = sqla.Column(sqla.Float) 
+    eps = sqla.Column(sqla.Float) 
+    epc = sqla.Column(sqla.Float)
