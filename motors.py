@@ -41,37 +41,37 @@ class Wavesculptor20(object):
                        "activeMotor": 0}  # worth having for full WS20 spec.
 
         # Flags inidicating errors
-        self.errors = {"15VUVL":  0,  # A 15V rail under volt lock out occurred
-                       "Conf":    0,  # Config Read Error
-                       "Watch":   0,  # Watchdog caused last reset
-                       "Halls":   0,  # Bad motor position hall sequence
-                       "DCBusOV": 0,  # DC Bus over voltage
-                       "SoftOC":  0,  # Software over current
-                       "HardOC":  0}  # Hardware over current
+        self.errors = {"15VUVL":  None,  # A 15V rail under volt lock out occurred
+                       "Conf":    None,  # Config Read Error
+                       "Watch":   None,  # Watchdog caused last reset
+                       "Halls":   None,  # Bad motor position hall sequence
+                       "DCBusOV": None,  # DC Bus over voltage
+                       "SoftOC":  None,  # Software over current
+                       "HardOC":  None}  # Hardware over current
 
         # Flags indicate limiting control loop
-        self.limits = {"HeatS":  0,   # Heatink Temperature
-                       "BusVL":  0,   # Bus Voltage Lower Limit
-                       "BusVU":  0,   # Bus Voltage Upper Limit
-                       "BusC":   0,   # Bus Current
-                       "Velo":   0,   # Velocity
-                       "MotorC": 0,   # Motor Current
-                       "PWM":    0}   # Bridge PWM
+        self.limits = {"HeatS":  None,   # Heatink Temperature
+                       "BusVL":  None,   # Bus Voltage Lower Limit
+                       "BusVU":  None,   # Bus Voltage Upper Limit
+                       "BusC":   None,   # Bus Current
+                       "Velo":   None,   # Velocity
+                       "MotorC": None,   # Motor Current
+                       "PWM":    None}   # Bridge PWM
 
         # Values grouped as they arrive over CAN bus
-        self._cangroups = {"Bus":          (0, 0),  # Bus Measurement
-                           "PhC":          (0, 0),  # Velocity Measrement
-                           "Vel":          (0, 0),  # Velocity Measrement
-                           "MVV":          (0, 0),  # Motor Voltage Vector Meas
-                           "MVC":          (0, 0),  # Motor Current Vector Meas
-                           "MBE":          (0, 0),  # Motor BackEMF Vector Meas
-                           "VR1":          (0, 0),  # 15 & 1.65 Volt. Rail Meas
-                           "VR2":          (0, 0),  # 2.5 & 1.2 Volt. Rail Meas
-                           "FSM":          (0, 0),  # Fan Speed Measrement
-                           "SKT":          (0, 0),  # Sink & Motor Temp. Meas
-                           "ICT":          (0, 0),  # Air In & CPU Temp. Meas
-                           "OCT":          (0, 0),  # Air out & Cap Temp. Meas
-                           "ODO":          (0, 0)}  # Odo. & Bus AmpHours Meas
+        self._cangroups = {"Bus":          (None, None),  # Bus Measurement
+                           "PhC":          (None, None),  # Velocity Measrement
+                           "Vel":          (None, None),  # Velocity Measrement
+                           "MVV":          (None, None),  # Motor Voltage Vector Meas
+                           "MVC":          (None, None),  # Motor Current Vector Meas
+                           "MBE":          (None, None),  # Motor BackEMF Vector Meas
+                           "VR1":          (None, None),  # 15 & 1.65 Volt. Rail Meas
+                           "VR2":          (None, None),  # 2.5 & 1.2 Volt. Rail Meas
+                           "FSM":          (None, None),  # Fan Speed Measrement
+                           "SKT":          (None, None),  # Sink & Motor Temp. Meas
+                           "ICT":          (None, None),  # Air In & CPU Temp. Meas
+                           "OCT":          (None, None),  # Air out & Cap Temp. Meas
+                           "ODO":          (None, None)}  # Odo. & Bus AmpHours Meas
 
         self.csv_headers = list(self.status().keys()) + \
             list(self.limits.keys()) + \

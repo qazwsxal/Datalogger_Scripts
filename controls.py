@@ -31,9 +31,9 @@ class Controls(object):
         self.config = {"seriaNo": 12345}  # Not that important but worth having
 
         # Values grouped as they arrive over CAN bus
-        self._cangroups = {"Mtr":          (0, 0),  # Motor Command
-                           "Bus":          (0, 0),  # Bus Command
-                           "Swi":          (0, 0)}  # Switch Status
+        self._cangroups = {"Mtr":          (None, None),  # Motor Command
+                           "Bus":          (None, None),  # Bus Command
+                           "Swi":          (None, None)}  # Switch Status
 
         self.csv_headers = list(self.status().keys())
 

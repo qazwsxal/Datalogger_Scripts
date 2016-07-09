@@ -71,6 +71,7 @@ while 1:
                     changed[key] = None
                 else:
                     changed[key] = data[key]
+            changed["time"] = datetime.datetime.now()
             pickle.dump(data, open(can_files[i],"wb+"))
             active_orm = can_orms[i]
             session.add(active_orm(**changed))
