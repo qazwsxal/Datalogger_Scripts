@@ -8,12 +8,12 @@ Logs CAN messages to mysql server
 """
 import sys
 import datetime
+import pickle
 import sqlalchemy as sqla
 from sqlalchemy.orm import sessionmaker
 import motors
 import controls
 import dbstorage
-import pickle
 from can.interfaces import socketcan_native as native_bus
 # mysql config
 username = "root"
@@ -65,14 +65,14 @@ while 1:
             data["time"] = datetime.datetime.now()
             changed = {}
             for key in old_data:
-            # only log updated values, saves space.
-            # SQLalchemy needs to be explicitly told a key is NULL
+                # only log updated values, saves space.
+                # SQLalchemy needs to be explicitly told a key is NULL
                 if data[key] == old_data[key]:
                     changed[key] = None
                 else:
                     changed[key] = data[key]
             changed["time"] = datetime.datetime.now()
-            pickle.dump(data, open(can_files[i],"wb+"))
+            pickle.dump(data, open(can_files[i], "wb+"))
             active_orm = can_orms[i]
             session.add(active_orm(**changed))
             # Commiting every message might strain server,
