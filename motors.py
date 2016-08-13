@@ -14,6 +14,11 @@ class Wavesculptor20(object):
     mc_base_address -- Integer, Motor Controller's base address,
                        default 1536 (0x600)
     """
+
+    formats = {"ID":    "u_int32 & char[4]",  # Identification info.
+               "Sts":  "3*u_int16"}           # Status Information
+    # all other messages: 2*float32           # Telemetry (standard)
+
     def __init__(self, mc_base_address=1536):
         self.types = {mc_base_address:      "ID",   # Identification Info
                       mc_base_address + 1:  "Sts",  # Staus Information
@@ -33,15 +38,11 @@ class Wavesculptor20(object):
 
         self.can_range = range(mc_base_address, mc_base_address+15)
 
-        self.formats = {"ID":    "u_int32 & char[4]",  # Identification info.
-                        "Sts":  "3*u_int16"}          # Status Information
-        #               all other messages: 2*float32    Telemetry (standard)
-
         self.config = {"seriaNo": 12345,  # These aren't that important but
                        "activeMotor": 0}  # worth having for full WS20 spec.
 
         # Flags inidicating errors
-        self.errors = {"15VUVL":  None,  # A 15V rail under volt lock out occurred
+        self.errors = {"15VUVL":  None,  # A 15V under volt lock out occurred
                        "Conf":    None,  # Config Read Error
                        "Watch":   None,  # Watchdog caused last reset
                        "Halls":   None,  # Bad motor position hall sequence
@@ -59,19 +60,19 @@ class Wavesculptor20(object):
                        "PWM":    None}   # Bridge PWM
 
         # Values grouped as they arrive over CAN bus
-        self._cangroups = {"Bus":          (None, None),  # Bus Measurement
-                           "PhC":          (None, None),  # Velocity Measrement
-                           "Vel":          (None, None),  # Velocity Measrement
-                           "MVV":          (None, None),  # Motor Voltage Vector Meas
-                           "MVC":          (None, None),  # Motor Current Vector Meas
-                           "MBE":          (None, None),  # Motor BackEMF Vector Meas
-                           "VR1":          (None, None),  # 15 & 1.65 Volt. Rail Meas
-                           "VR2":          (None, None),  # 2.5 & 1.2 Volt. Rail Meas
-                           "FSM":          (None, None),  # Fan Speed Measrement
-                           "SKT":          (None, None),  # Sink & Motor Temp. Meas
-                           "ICT":          (None, None),  # Air In & CPU Temp. Meas
-                           "OCT":          (None, None),  # Air out & Cap Temp. Meas
-                           "ODO":          (None, None)}  # Odo. & Bus AmpHours Meas
+        self._cangroups = {"Bus": (None, None),  # Bus Measurement
+                           "PhC": (None, None),  # Velocity Measrement
+                           "Vel": (None, None),  # Velocity Measrement
+                           "MVV": (None, None),  # Motor Voltage Vector Meas
+                           "MVC": (None, None),  # Motor Current Vector Meas
+                           "MBE": (None, None),  # Motor BackEMF Vector Meas
+                           "VR1": (None, None),  # 15 & 1.65 Volt. Rail Meas
+                           "VR2": (None, None),  # 2.5 & 1.2 Volt. Rail Meas
+                           "FSM": (None, None),  # Fan Speed Measrement
+                           "SKT": (None, None),  # Sink & Motor Temp. Meas
+                           "ICT": (None, None),  # Air In & CPU Temp. Meas
+                           "OCT": (None, None),  # Air out & Cap Temp. Meas
+                           "ODO": (None, None)}  # Odo. & Bus AmpHours Meas
 
         self.csv_headers = list(self.status().keys()) + \
             list(self.limits.keys()) + \
@@ -79,8 +80,6 @@ class Wavesculptor20(object):
 
     def status(self):
         """returns a dict of motor status"""
-        # Rewrite using python getter + @property decorator
-        # motor.status shouldn't be a function call, feels weird.
         statdict = {"busCurrent":        self._cangroups["Bus"][0],
                     "busVoltage":        self._cangroups["Bus"][1],
                     "vehicleVelocity":   self._cangroups["Vel"][0],
