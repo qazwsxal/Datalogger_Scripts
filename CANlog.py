@@ -47,6 +47,13 @@ motor_file = "/dev/shm/motor"
 controls_file = "/dev/shm/controls"
 can_files = [motor_file, controls_file]
 
+# intial file setup prevents file not found errors
+
+for i, active_obj in enumerate(can_objects):
+    data = active_obj.status()
+    data["time"] = datetime.datetime.now()
+    pickle.dump(data, open(can_files[i], "wb+"))
+
 # mysql setup
 engine = sqla.create_engine(serveraddr, pool_recycle=3600)
 dbstorage.Base.metadata.create_all(engine)
