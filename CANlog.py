@@ -38,9 +38,7 @@ can_objects = [motor, controls]
 
 
 # Set up bus object ORM interfaces
-motor_orm = dbstorage.WS20_ORM
-controls_orm = dbstorage.Controls_ORM
-can_orms = [motor_orm, controls_orm]
+can_orms = [dbstorage.WS20_ORM, dbstorage.Controls_ORM]
 
 # Set up bus object shared memory files
 motor_file = "/dev/shm/motor"
