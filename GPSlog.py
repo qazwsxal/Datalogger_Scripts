@@ -36,8 +36,7 @@ for new_data in gps_socket:
     if new_data:
         old = data_stream.TPV.copy()
         data_stream.unpack(new_data)
-        if old != data_stream.TPV:
-            session.add(gps_orm(**data_stream.TPV))
-            session.commit()
-            pickle.dump(data_stream.TPV, open(gps_file,"wb+"))
-            time.sleep(1.0 - ((time.time() - starttime) % 1.0)) #sleep for a second
+        session.add(gps_orm(**data_stream.TPV))
+        session.commit()
+        pickle.dump(data_stream.TPV, open(gps_file,"wb+"))
+        time.sleep(1.0 - ((time.time() - starttime) % 1.0)) #sleep for a second
