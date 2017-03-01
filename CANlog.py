@@ -8,7 +8,7 @@ Logs CAN messages to mysql server
 """
 import sys
 import datetime
-import pickle
+import json
 import sqlalchemy as sqla
 from sqlalchemy.orm import sessionmaker
 import motors
@@ -51,8 +51,8 @@ can_files = [motor_file, controls_file]
 
 for i, active_obj in enumerate(can_objects):
     data = active_obj.status()
-    data["time"] = datetime.datetime.now()
-    pickle.dump(data, open(can_files[i], "wb+"))
+    data["time"] = datetime.datetime.now().isoformat()
+    json.dump(data, open(can_files[i], "w"))
 
 # mysql setup
 engine = sqla.create_engine(serveraddr, pool_recycle=3600)
@@ -69,7 +69,7 @@ while 1:
             old_data = active_obj.status()
             active_obj.parse_can_msg(msg.arbitration_id, msg.data)
             data = active_obj.status()
-            data["time"] = datetime.datetime.now()
+            data["time"] = datetime.datetime.now().isoformat()
             changed = {}
             for key in old_data:
                 # only log updated values, saves space.
@@ -79,7 +79,10 @@ while 1:
                 else:
                     changed[key] = data[key]
             changed["time"] = datetime.datetime.now()
-            pickle.dump(data, open(can_files[i], "wb+"))
+            jsonfile = open(can_files[i], "w")
+            json.dump(data, jsonfile)
+            # print(data)
+            jsonfile.close()
             active_orm = can_orms[i]
             session.add(active_orm(**changed))
             # Commiting every message might strain server,

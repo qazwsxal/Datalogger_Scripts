@@ -1,6 +1,6 @@
 import time
 import sqlalchemy as sqla
-import pickle
+import json
 import dbstorage
 from sqlalchemy.orm import sessionmaker
 from gps3 import gps3
@@ -38,5 +38,5 @@ for new_data in gps_socket:
         data_stream.unpack(new_data)
         session.add(gps_orm(**data_stream.TPV))
         session.commit()
-        pickle.dump(data_stream.TPV, open(gps_file,"wb+"))
+        json.dump(data_stream.TPV, open(gps_file,"w+"))
         time.sleep(1.0 - ((time.time() - starttime) % 1.0)) #sleep for a second
