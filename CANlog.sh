@@ -5,12 +5,18 @@
 # sudo ip link set can0 type can bitrate 1000000
 # sudo ip link set can0 up
 
+# Wait until ttyCAN exists
+while [ ! -L /dev/ttyCAN ]; do sleep 1; echo notfound; done
+echo found
+sleep 1
+
 # enable slcan0
-slcand -o -c -f -s8 /dev/ttyCAN slcan0
-ifconfig slcan0 up
+slcand -o -c -f -s8 /dev/ttyCAN slcan0 > /root/Datalogger_Scripts/slcand_errors.txt
+sleep 1
+ifconfig slcan0 up > /root/Datalogger_Scripts/ifconfig_errors.txt
 
 # activate venv
-source /root/Datalogger_Scripts/.venv/bin/activate
+		source /root/Datalogger_Scripts/.venv/bin/activate
 
 # run CANlog.py
 python3 /root/Datalogger_Scripts/CANlog.py slcan0

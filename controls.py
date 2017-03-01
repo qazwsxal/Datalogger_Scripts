@@ -39,9 +39,9 @@ class Controls(object):
 
     def status(self):
         """returns a dict of driver commands"""
-        statdict = {"busCurrent":      self._cangroups["Bus"][0],
-                    "motorCurrent":    self._cangroups["Mtr"][0],
-                    "motorVelocity":   self._cangroups["Mtr"][1]}
+        statdict = {"setBusCurrent":      self._cangroups["Bus"][0],
+                    "setMotorCurrent":    self._cangroups["Mtr"][0],
+                    "setMotorVelocity":   self._cangroups["Mtr"][1]}
         return statdict
 
     def csv_data(self):

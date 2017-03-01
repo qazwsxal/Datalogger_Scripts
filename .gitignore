@@ -3,6 +3,7 @@
 *.swp
 *.csv
 *.pyc
+*errors.txt
 bower.json
 release/
 /tags

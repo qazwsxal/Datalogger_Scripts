@@ -49,9 +49,9 @@ class Controls_ORM(Base):
 
     msg_id = sqla.Column(sqla.BigInteger, primary_key=True)
     time = sqla.Column(DATETIME(fsp=4))
-    busCurrent = sqla.Column(sqla.Float, server_default=None, nullable=True)
-    motorCurrent = sqla.Column(sqla.Float, server_default=None, nullable=True)
-    motorVelocity = sqla.Column(sqla.Float, server_default=None, nullable=True)
+    setBusCurrent = sqla.Column(sqla.Float, server_default=None, nullable=True)
+    setMotorCurrent = sqla.Column(sqla.Float, server_default=None, nullable=True)
+    setMotorVelocity = sqla.Column(sqla.Float, server_default=None, nullable=True)
 
 
 class GPS_ORM(Base):
