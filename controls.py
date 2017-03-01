@@ -14,6 +14,11 @@ class Controls(object):
     controls_base_address -- Integer, Motor Controller's base address,
                        default 1280 (0x500)
     """
+    formats = {"ID":   "u_int32 & char[4]",  # Identification info.
+               "Swi":  "2*u_int32"}          # Switch Information
+    # control messages: 2*float32            # Telemetry (standard)
+    #           reset:  No data
+
     def __init__(self, controls_base_address=1280):
         self.types = {controls_base_address:      "ID",   # Identification Info
                       controls_base_address + 1:  "Mtr",  # Motor Drive Command
@@ -22,11 +27,6 @@ class Controls(object):
                       controls_base_address + 4:  "Swi"}  # Switch Status
 
         self.can_range = range(controls_base_address, controls_base_address+5)
-
-        self.formats = {"ID":   "u_int32 & char[4]",  # Identification info.
-                        "Swi":  "2*u_int32"}          # Switch Information
-        #               control messages: 2*float32     Telemetry (standard)
-        #               reset:  No data
 
         self.config = {"seriaNo": 12345}  # Not that important but worth having
 
