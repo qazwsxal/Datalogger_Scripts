@@ -2,6 +2,8 @@ import serial
 import struct
 
 VOLTAGE_FACTOR = 0.005
+
+
 def parseResp(response):
     ans = struct.unpack('<BBHHHHHHHHHHBBBBBBB', response)
     moduleData = {}
@@ -12,6 +14,7 @@ def parseResp(response):
     moduleData['OVP'] = ans[14]
     moduleData['LVP'] = ans[16]
     return moduleData
+
 
 conn = serial.Serial('/dev/ttyUSB0', 600, parity=serial.PARITY_EVEN,
                      timeout=0.8)
@@ -26,6 +29,5 @@ while True:
     for i in cells:
         msg = bytearray([129, 170, i, i])
         conn.write(msg)
-        data =parseResp(conn.read(29))
+        data = parseResp(conn.read(29))
         print(data)
-
