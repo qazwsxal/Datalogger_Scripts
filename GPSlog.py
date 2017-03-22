@@ -1,7 +1,8 @@
-import time
-import sqlalchemy as sqla
-import json
 import dbstorage
+import json
+import os
+import sqlalchemy as sqla
+import time
 from sqlalchemy.orm import sessionmaker
 from gps3 import gps3
 
@@ -37,6 +38,10 @@ for new_data in gps_socket:
         data_stream.unpack(new_data)
         session.add(gps_orm(**data_stream.TPV))
         session.commit()
-        json.dump(data_stream.TPV, open(gps_file, "w+"))
+        jsonfile = open(gps_file, "w+")
+        json.dump(data_stream.TPV, jsonfile)
+        jsonfile.flush()
+        os.fsync(jsonfile.fileno())
+        jsonfile.close
         # sleep for a second
         time.sleep(1.0 - ((time.time() - starttime) % 1.0))

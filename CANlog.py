@@ -6,15 +6,16 @@ Logs CAN messages to mysql server
 
 @author: Adam Leach adam.leach@dur.ac.uk, qazwsxalan@gmail.com
 """
-import sys
-import datetime
-import json
-import sqlalchemy as sqla
-from sqlalchemy.orm import sessionmaker
-import motors
 import controls
+import datetime
 import dbstorage
+import json
+import motors
+import os
+import sqlalchemy as sqla
+import sys
 from can.interfaces import socketcan_native as native_bus
+from sqlalchemy.orm import sessionmaker
 # mysql config
 username = "root"
 database = "2016test"
@@ -80,6 +81,8 @@ while 1:
             jsonfile = open(can_files[i], "w")
             json.dump(data, jsonfile)
             # print(data)
+            jsonfile.flush()
+            os.fsync(jsonfile.fileno())
             jsonfile.close()
             active_orm = can_orms[i]
             session.add(active_orm(**changed))
