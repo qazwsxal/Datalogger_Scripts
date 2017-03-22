@@ -9,17 +9,19 @@ import dbstorage
 # mysql config
 username = "root"
 database = "2016test"
-# host = "192.168.7.2"
 host = "127.0.0.1"
 password = "dusc2015"
 serveraddr = "mysql+mysqlconnector://%s:%s@%s/%s" % (
     username, password, host, database)
 
+# mysql setup
 bms_orm = dbstorage.BMS_ORM
 engine = sqla.create_engine(serveraddr, pool_recycle=3600)
 dbstorage.Base.metadata.create_all(engine)
 session_init = sessionmaker(bind=engine)
 session = session_init()
+
+bms_file = "/dev/shm/bms"
 
 
 VOLTAGE_FACTOR = 0.005
@@ -43,6 +45,7 @@ def parseResp(response):
 conn = serial.Serial('/dev/ttyBMS', 600, parity=serial.PARITY_EVEN,
                      timeout=0.8)
 cells = []
+batterypack = {}
 for i in range(35):
     msg = bytearray([129, 170, i, i])
     conn.write(msg)
@@ -58,3 +61,5 @@ while True:
 
         session.add(bms_orm(**data))
         session.commit()
+        batterypack[data['modID']] = data
+        json.dump(batterypack, open(bms_file, "w+"))

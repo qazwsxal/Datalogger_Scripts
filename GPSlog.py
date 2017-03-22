@@ -16,7 +16,6 @@ serveraddr = "mysql+mysqlconnector://%s:%s@%s/%s" % (
     username, password, host, database)
 
 
-
 # set up gps
 gps_socket = gps3.GPSDSocket()
 data_stream = gps3.DataStream()
@@ -32,11 +31,12 @@ session_init = sessionmaker(bind=engine)
 session = session_init()
 
 for new_data in gps_socket:
-    starttime=time.time()
+    starttime = time.time()
     if new_data:
         old = data_stream.TPV.copy()
         data_stream.unpack(new_data)
         session.add(gps_orm(**data_stream.TPV))
         session.commit()
-        json.dump(data_stream.TPV, open(gps_file,"w+"))
-        time.sleep(1.0 - ((time.time() - starttime) % 1.0)) #sleep for a second
+        json.dump(data_stream.TPV, open(gps_file, "w+"))
+        # sleep for a second
+        time.sleep(1.0 - ((time.time() - starttime) % 1.0))
