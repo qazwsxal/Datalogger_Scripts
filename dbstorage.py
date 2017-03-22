@@ -53,6 +53,20 @@ class Controls_ORM(Base):
     setMotorCurrent = sqla.Column(sqla.Float, server_default=None, nullable=True)
     setMotorVelocity = sqla.Column(sqla.Float, server_default=None, nullable=True)
 
+class BMS_ORM(Base):
+    __tablename__ = 'batteries'
+
+    msg_id = sqla.Column(sqla.BigInteger, primary_key=True)
+    time = sqla.Column(DATETIME(fsp=4))
+    modID = sqla.Column(sqla.Integer)
+    cycles = sqla.Column(sqla.Integer)
+    OTP = sqla.Column(sqla.Integer)
+    OVP = sqla.Column(sqla.Integer)
+    LVP = sqla.Column(sqla.Integer)
+    cellV0 = sqla.Column(sqla.Float)
+    cellV1 = sqla.Column(sqla.Float)
+    cellV2 = sqla.Column(sqla.Float)
+    cellV3 = sqla.Column(sqla.Float)
 
 class GPS_ORM(Base):
     __tablename__ = 'gps_tpv'
