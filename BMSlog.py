@@ -52,6 +52,7 @@ for i in range(35):
     conn.write(msg)
     if len(conn.read(29)):
         cells.append(i)
+        print("module", i, "found")
 
 while True:
     for i in cells:
