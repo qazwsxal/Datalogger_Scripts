@@ -1,11 +1,12 @@
+import datetime
+import dbstorage
+import json
+import os
 import serial
+import sqlalchemy as sqla
 import struct
 import sys
-import datetime
-import json
-import sqlalchemy as sqla
 from sqlalchemy.orm import sessionmaker
-import dbstorage
 # mysql config
 username = "root"
 database = "2016test"
@@ -58,8 +59,11 @@ while True:
         conn.write(msg)
         data = parseResp(conn.read(29))
         data["time"] = datetime.datetime.now().isoformat()
-
         session.add(bms_orm(**data))
         session.commit()
         batterypack[data['modID']] = data
-        json.dump(batterypack, open(bms_file, "w+"))
+        jsonfile = open(bms_file, "w+")
+        json.dump(batterypack, jsonfile)
+        jsonfile.flush()
+        os.fsync(jsonfile.fileno())
+        jsonfile.close
