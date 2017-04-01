@@ -14,6 +14,7 @@ import motors
 import os
 import sqlalchemy as sqla
 import sys
+import time
 from can.interfaces import socketcan_native as native_bus
 from sqlalchemy.orm import sessionmaker
 # mysql config
@@ -59,6 +60,7 @@ dbstorage.Base.metadata.create_all(engine)
 session_init = sessionmaker(bind=engine)
 session = session_init()
 
+COMMIT_RATE = 60
 
 while 1:
     msg = bus.recv()
@@ -89,4 +91,5 @@ while 1:
             # Commiting every message might strain server,
             # setting transaction flushes to occur
             # once per second should help
-            session.commit()
+            if time.clock() % COMMIT_RATE <1.0:
+                session.commit()
