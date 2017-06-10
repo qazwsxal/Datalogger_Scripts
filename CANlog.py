@@ -15,8 +15,22 @@ import os
 import sqlalchemy as sqla
 import sys
 import time
+import threading
+import queue
 from can.interfaces import socketcan_native as native_bus
 from sqlalchemy.orm import sessionmaker
+
+
+def mysql_worker(session, canQueue):
+    while True:
+        item = canQueue.get()
+        if item is None:
+            session.commit()
+        session.add(item)
+        if time.clock() % COMMIT_RATE < 1.0:
+            session.commit()
+
+
 # mysql config
 username = "root"
 database = "2016test"
@@ -62,6 +76,9 @@ session = session_init()
 
 COMMIT_RATE = 60
 
+msg_queue = queue.Queue()
+
+threading.thread(target=mysql_worker, args=(session, msg_queue))
 while 1:
     msg = bus.recv()
     for i, active_obj in enumerate(can_objects):
@@ -87,9 +104,7 @@ while 1:
             os.fsync(jsonfile.fileno())
             jsonfile.close()
             active_orm = can_orms[i]
-            session.add(active_orm(**changed))
+            msg_queue.put(active_orm(**changed))
             # Commiting every message might strain server,
             # setting transaction flushes to occur
             # once per second should help
-            if time.clock() % COMMIT_RATE <1.0:
-                session.commit()
