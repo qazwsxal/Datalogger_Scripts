@@ -45,17 +45,19 @@ def parseResp(response):
 
 conn = serial.Serial('/dev/ttyBMS', 600, parity=serial.PARITY_EVEN,
                      timeout=0.8)
-cells = []
+modules = []
 batterypack = {}
+# Determine what modules exist
 for i in range(35):
     msg = bytearray([129, 170, i, i])
     conn.write(msg)
     if len(conn.read(29)):
-        cells.append(i)
+        modules.append(i)
         print("module", i, "found")
 
+# Continuously read modules
 while True:
-    for i in cells:
+    for i in modules:
         msg = bytearray([129, 170, i, i])
         conn.write(msg)
         data = parseResp(conn.read(29))
@@ -67,4 +69,4 @@ while True:
         json.dump(batterypack, jsonfile)
         jsonfile.flush()
         os.fsync(jsonfile.fileno())
-        jsonfile.close
+        jsonfile.close()
